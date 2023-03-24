@@ -28,6 +28,9 @@ else
   s3_uri="$s3_uri_base"
 fi
 
+echo "Creating bucket $S3_BUCKET if not exists..."
+aws $aws_args s3 mb s3://$S3_BUCKET || true
+
 echo "Uploading backup to $S3_BUCKET..."
 aws $aws_args s3 cp "$local_file" "$s3_uri"
 rm "$local_file"
