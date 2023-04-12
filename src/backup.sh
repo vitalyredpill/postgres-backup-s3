@@ -5,17 +5,24 @@ set -o pipefail
 
 source ./env.sh
 
-echo "Creating backup of $POSTGRES_DATABASE database..."
-pg_dump --format=custom \
-        -h $POSTGRES_HOST \
-        -p $POSTGRES_PORT \
-        -U $POSTGRES_USER \
-        -d $POSTGRES_DATABASE \
-        $PGDUMP_EXTRA_OPTS \
-        > db.dump
+if [ "" != "$MYSQL_DATABASE" ]; then
+  echo "Creating backup of $MYSQL_DATABASE database..."
+  mysqldump --no-tablespaces --opt -h ${MYSQL_HOST} -u ${MYSQL_USER} --port=$MYSQL_PORT -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} $MYSQL_DUMP_EXTRA_OPTS > db.dump
+  DATABASE=$MYSQL_DATABASE
+else
+  echo "Creating backup of $POSTGRES_DATABASE database..."
+  pg_dump --format=custom \
+          -h $POSTGRES_HOST \
+          -p $POSTGRES_PORT \
+          -U $POSTGRES_USER \
+          -d $POSTGRES_DATABASE \
+          $PGDUMP_EXTRA_OPTS \
+          > db.dump
+  DATABASE=$POSTGRES_DATABASE
+fi;
 
 timestamp=$(date +"%Y-%m-%dT%H:%M:%S")
-s3_uri_base="s3://${S3_BUCKET}/${S3_PREFIX}/${POSTGRES_DATABASE}_${timestamp}.dump"
+s3_uri_base="s3://${S3_BUCKET}/${S3_PREFIX}/${DATABASE}_${timestamp}.dump"
 
 if [ -n "$PASSPHRASE" ]; then
   echo "Encrypting backup..."

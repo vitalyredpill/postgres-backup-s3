@@ -7,6 +7,7 @@ apk update
 
 # install pg_dump
 apk add postgresql14-client
+apk add --no-cache mysql-client
 
 # install gpg
 apk add gnupg
@@ -17,9 +18,9 @@ pip3 install awscli
 
 # install go-cron
 apk add curl
-curl -L https://github.com/ivoronin/go-cron/releases/download/v0.0.5/go-cron_0.0.5_linux_${TARGETARCH}.tar.gz -O
-tar xvf go-cron_0.0.5_linux_${TARGETARCH}.tar.gz
-rm go-cron_0.0.5_linux_${TARGETARCH}.tar.gz
+curl -L https://github.com/vitalyredpill/go-cron/releases/download/v0.2.8/go-cron_0.2.8_linux_${TARGETARCH}.tar.gz -O
+tar xvf go-cron_0.2.8_linux_${TARGETARCH}.tar.gz
+rm go-cron_0.2.8_linux_${TARGETARCH}.tar.gz
 mv go-cron /usr/local/bin/go-cron
 chmod u+x /usr/local/bin/go-cron
 apk del curl

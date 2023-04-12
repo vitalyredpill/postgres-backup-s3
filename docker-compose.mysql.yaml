@@ -1,0 +1,40 @@
+# this file is here to facilitate development/testing
+# $ docker compose up -d --build --force-recreate
+services:
+
+  mysql:
+    image: mysql:5.6
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: database
+
+  backup:
+    platform: linux/amd64
+    build:
+      context: .
+      args:
+        ALPINE_VERSION: '3.16'
+    environment:
+      SCHEDULE: '* */1 * * *' # optional
+      BACKUP_KEEP_DAYS: 7 # optional
+      PASSPHRASE: ''
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: ''
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin
+      S3_BUCKET: 'backups'
+      S3_PREFIX: backup
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+  minio:
+    image: minio/minio:latest
+    restart: always
+    command: server /data --console-address ":9001"
+    ports:
+      - '33008:9000'
+      - '33009:9001'

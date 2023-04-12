@@ -3,31 +3,35 @@ if [ -z "$S3_BUCKET" ]; then
   exit 1
 fi
 
-if [ -z "$POSTGRES_DATABASE" ]; then
-  echo "You need to set the POSTGRES_DATABASE environment variable."
+if [ -z "$POSTGRES_DATABASE" ] & [ -z "$MYSQL_DATABASE" ]; then
+  echo "You need to set the POSTGRES_DATABASE or MYSQL_DATABASE environment variable."
   exit 1
 fi
 
-if [ -z "$POSTGRES_HOST" ]; then
-  # https://docs.docker.com/network/links/#environment-variables
-  if [ -n "$POSTGRES_PORT_5432_TCP_ADDR" ]; then
-    POSTGRES_HOST=$POSTGRES_PORT_5432_TCP_ADDR
-    POSTGRES_PORT=$POSTGRES_PORT_5432_TCP_PORT
-  else
-    echo "You need to set the POSTGRES_HOST environment variable."
+if ! [ -z "$POSTGRES_DATABASE" ]; then
+
+  if [ -z "$POSTGRES_HOST" ]; then
+    # https://docs.docker.com/network/links/#environment-variables
+    if [ -n "$POSTGRES_PORT_5432_TCP_ADDR" ]; then
+      POSTGRES_HOST=$POSTGRES_PORT_5432_TCP_ADDR
+      POSTGRES_PORT=$POSTGRES_PORT_5432_TCP_PORT
+    else
+      echo "You need to set the POSTGRES_HOST environment variable."
+      exit 1
+    fi
+  fi
+
+  if [ -z "$POSTGRES_USER" ]; then
+    echo "You need to set the POSTGRES_USER environment variable."
     exit 1
   fi
-fi
 
-if [ -z "$POSTGRES_USER" ]; then
-  echo "You need to set the POSTGRES_USER environment variable."
-  exit 1
-fi
+  if [ -z "$POSTGRES_PASSWORD" ]; then
+    echo "You need to set the POSTGRES_PASSWORD environment variable."
+    exit 1
+  fi
 
-if [ -z "$POSTGRES_PASSWORD" ]; then
-  echo "You need to set the POSTGRES_PASSWORD environment variable."
-  exit 1
-fi
+fi;
 
 if [ -z "$S3_ENDPOINT" ]; then
   aws_args=""
